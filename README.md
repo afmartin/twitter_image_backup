@@ -6,7 +6,7 @@ This script allows a user to download images from their tweets.  While it is lim
 
 ## Setup
 
-Python 2 is required.
+Python 3 is required.
 
 Use:
 
