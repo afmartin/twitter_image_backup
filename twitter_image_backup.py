@@ -158,7 +158,7 @@ def config():
         consumer_secret = config['app']['secret']
         save_directory = config['app']['save_directory']
     except:
-        # To-do: Make something more userful than this.
+        # To-do: Identify specific error and resolve it.
         print(sys.argv[0] + " ERROR: Configuration file is corrupted.  Please make or update 'config' file to be like:", file=sys.stderr)
         print("[app]\nkey = YOUR_KEY_HERE\nsecret = YOUR_SECRET_HERE\nsave_directory = DESTINATION_DIRECTORY_HERE", file=sys.stderr)
         sys.exit(1)
@@ -232,26 +232,29 @@ def retrieve_images_from_tweets(user, json):
                 if "media_url" in dictionary:
                     media_url = dictionary["media_url"]
 
-            print(sys.argv[0] + " (" + str(int(100 * ( float(tweet_count) / float(count)))) + "% Done) Retrieving Image: " + media_url, file=sys.stdout)
-
             if media_url:
                 filename = save_directory + user + "/" + str(tweet["id"]) + media_url[-4:]
-                try:
-                    image = urllib.request.urlopen(media_url).read()
-                except:
-                    print(sys.argv[0] + " ERROR: Could not retrieve image", file=sys.stderr)
-                    print(sys.argv[0] + " Will try to continue running...", file=sys.stderr)
 
-                try:
-                    f = open(filename, 'wb')
+                if not os.path.isfile(filename): 
                     try:
-                        f.write(image)
-                    finally:
-                        f.close()
-                except IOError as error:
-                    print(sys.argv[0] + " ERROR: Could not open file", file=sys.stderr)
-                    print(sys.argv[0] + " ERROR: IOError: [" + error.errno + "] " + error.filename + " - " + error.strerror, file=sys.stderr)
-                    sys.exit(1)
+                        image = urllib.request.urlopen(media_url).read()
+                    except:
+                        print(sys.argv[0] + " ERROR: Could not retrieve image", file=sys.stderr)
+                        print(sys.argv[0] + " Will try to continue running...", file=sys.stderr)
+                
+                    # To-do: Show how amount tweets have been processed on a persistent line.
+                    print(sys.argv[0] + " Downloading: " + media_url, file=sys.stdout)
+
+                    try:
+                        f = open(filename, 'wb')
+                        try:
+                            f.write(image)
+                        finally:
+                            f.close()
+                    except IOError as error:
+                        print(sys.argv[0] + " ERROR: Could not open file", file=sys.stderr)
+                        print(sys.argv[0] + " ERROR: IOError: [" + error.errno + "] " + error.filename + " - " + error.strerror, file=sys.stderr)
+                        sys.exit(1)
         tweet_count += 1
 
 
